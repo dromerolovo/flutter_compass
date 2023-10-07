@@ -19,6 +19,7 @@ class _MyAppState extends State<MyApp> {
   bool _hasPermissions = false;
   CompassEvent? _lastRead;
   DateTime? _lastReadAt;
+  bool? isStreamOn = true;
 
   @override
   void initState() {
@@ -54,36 +55,78 @@ class _MyAppState extends State<MyApp> {
   Widget _buildManualReader() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: <Widget>[
-          ElevatedButton(
-            child: Text('Read Value'),
-            onPressed: () async {
-              final CompassEvent tmp = await FlutterCompass.events!.first;
-              setState(() {
-                _lastRead = tmp;
-                _lastReadAt = DateTime.now();
-              });
-            },
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    '$_lastRead',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  Text(
-                    '$_lastReadAt',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                child: ElevatedButton(
+                    onPressed: () async {
+                      FlutterCompass.start();
+                    },
+                    child: Text("start data")),
               ),
-            ),
+              SizedBox(width: 10),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: ElevatedButton(
+                    onPressed: () async {
+                      FlutterCompass.stop();
+                    },
+                    child: Text("stop data")),
+              ),
+            ],
           ),
+          Row(
+            children: <Widget>[
+              ElevatedButton(
+                child: Text('Read Value'),
+                onPressed: () async {
+                  final CompassEvent tmp = await FlutterCompass.events!.first;
+                  setState(() {
+                    _lastRead = tmp;
+                    _lastReadAt = DateTime.now();
+                  });
+                },
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        '$_lastRead',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      Text(
+                        '$_lastReadAt',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Container(
+                alignment: Alignment.centerLeft,
+                child: ElevatedButton(
+                    onPressed: () async {
+                      var _isStreamOn = await FlutterCompass.isStreamFlowing();
+                      setState(() {
+                        isStreamOn = _isStreamOn;
+                      });
+                    },
+                    child: Text("Is stream on?")),
+              ),
+              SizedBox(width: 10),
+              Text(isStreamOn.toString())
+            ],
+          )
         ],
       ),
     );
